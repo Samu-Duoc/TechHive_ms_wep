@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
+import java.math.BigDecimal;
 
 
 @Service
@@ -18,35 +20,35 @@ import java.util.List;
 
 public class CarritoService {
 
-    private final CarritoRepository carritoRepository;
-    private final DetalleCarritoRepository detalleCarritoRepository;
+        private final CarritoRepository carritoRepository;
+        private final DetalleCarritoRepository detalleCarritoRepository;
 
     //Carrito para un usuario (Si ya tiene carrito activo, retorna ese)
-    public CarritoDTO crearCarrito(CrearCarritoDTO dto) {
+        public CarritoDTO crearCarrito(CrearCarritoDTO dto) {
 
         Carrito carrito = carritoRepository.findByUsuarioId(dto.getUsuarioId())
                 .orElseGet(() -> {
-                    Carrito nuevo = Carrito.builder()
-                            .usuarioId(dto.getUsuarioId())
-                            .fechaCreacion(LocalDateTime.now())
-                            .build();
-                    return carritoRepository.save(nuevo);
+                        Carrito nuevo = Carrito.builder()
+                        .usuarioId(dto.getUsuarioId())
+                        .fechaCreacion(LocalDateTime.now())
+                        .build();
+                        return carritoRepository.save(nuevo);
                 });
 
         return toDTO(carrito);
-    }
+        }
 
-      // Obtener carrito por usuario
-    public CarritoDTO obtenerPorUsuario(Long usuarioId) {
+         // Obtener carrito por usuario
+        public CarritoDTO obtenerPorUsuario(Long usuarioId) {
 
         Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new IllegalArgumentException("El usuario no tiene carrito"));
 
         return toDTO(carrito);
-    }
+        }
 
-    //Agregar producto al carrito
-    public CarritoDTO agregarItem(Long carritoId, AgregarItemDTO dto) {
+        //Agregar producto al carrito
+        public CarritoDTO agregarItem(Long carritoId, AgregarItemDTO dto) {
 
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
@@ -63,10 +65,10 @@ public class CarritoService {
         //Recargar  carrito con sus items
         Carrito actualizado = carritoRepository.findById(carritoId).orElseThrow();
         return toDTO(actualizado);
-    }
+        }
 
-    //Actulizar item del carrito
-    public CarritoDTO actualizarItem(Long carritoId, Long detalleId, ActualizarItemDTO dto) {
+        //Actulizar item del carrito
+        public CarritoDTO actualizarItem(Long carritoId, Long detalleId, ActualizarItemDTO dto) {
 
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
@@ -75,7 +77,7 @@ public class CarritoService {
                 .orElseThrow(() -> new IllegalArgumentException("Item del carrito no encontrado"));
 
         if (!detalle.getCarrito().getId().equals(carrito.getId())) {
-            throw new IllegalArgumentException("El item no pertenece a este carrito");
+                throw new IllegalArgumentException("El item no pertenece a este carrito");
         }
 
         detalle.setCantidad(dto.getCantidad());
@@ -85,10 +87,10 @@ public class CarritoService {
         Carrito actualizado = carritoRepository.findById(carritoId).orElseThrow();
 
         return toDTO(actualizado);
-    }
+        }
 
-    // Eliminar ítem
-    public CarritoDTO eliminarItem(Long carritoId, Long detalleId) {
+        // Eliminar ítem
+        public CarritoDTO eliminarItem(Long carritoId, Long detalleId) {
 
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
@@ -97,17 +99,17 @@ public class CarritoService {
                 .orElseThrow(() -> new IllegalArgumentException("Item del carrito no encontrado"));
 
         if (!detalle.getCarrito().getId().equals(carrito.getId())) {
-            throw new IllegalArgumentException("El item no pertenece a este carrito");
+                throw new IllegalArgumentException("El item no pertenece a este carrito");
         }
 
         detalleCarritoRepository.delete(detalle);
 
         Carrito actualizado = carritoRepository.findById(carritoId).orElseThrow();
         return toDTO(actualizado);
-    }
+        }
 
-    // Vaciar carrito (eliminar todos los ítems)
-    public CarritoDTO vaciarCarrito(Long carritoId) {
+        // Vaciar carrito (eliminar todos los ítems)
+        public CarritoDTO vaciarCarrito(Long carritoId) {
 
         Carrito carrito = carritoRepository.findById(carritoId)
                 .orElseThrow(() -> new IllegalArgumentException("Carrito no encontrado"));
@@ -117,18 +119,18 @@ public class CarritoService {
 
         Carrito actualizado = carritoRepository.findById(carritoId).orElseThrow();
         return toDTO(actualizado);
-    }
+        }
 
-    // Eliminar carrito completo
-    public void eliminarCarrito(Long carritoId) {
+        // Eliminar carrito completo
+        public void eliminarCarrito(Long carritoId) {
         if (!carritoRepository.existsById(carritoId)) {
-            throw new IllegalArgumentException("Carrito no encontrado");
+                throw new IllegalArgumentException("Carrito no encontrado");
         }
         carritoRepository.deleteById(carritoId);
-    }
+        }
 
-    // Helpers: convertir a DTO y calcular total
-    private CarritoDTO toDTO(Carrito carrito) {
+        // Helpers: convertir a DTO y calcular total
+        private CarritoDTO toDTO(Carrito carrito) {
 
         List<ItemCarritoDTO> items = carrito.getDetalles()
                 .stream()
@@ -140,9 +142,10 @@ public class CarritoService {
                         .build()
                 ).toList();
 
-        double total = items.stream()
-                .mapToDouble(ItemCarritoDTO::getSubtotal)
-                .sum();
+        BigDecimal total = items.stream()
+                .map(ItemCarritoDTO::getSubtotal)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         return CarritoDTO.builder()
                 .id(carrito.getId())
@@ -151,6 +154,6 @@ public class CarritoService {
                 .total(total)
                 .items(items)
                 .build();
-    }
+        }
 
 }
