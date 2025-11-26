@@ -1,5 +1,6 @@
 package com.ms_auth_usuarios.controller;
 
+import com.ms_auth_usuarios.dto.CambiarPasswordDTO;
 import com.ms_auth_usuarios.dto.RegistroUsuarioDTO;
 import com.ms_auth_usuarios.dto.UsuarioDTO;
 import com.ms_auth_usuarios.service.UsuarioService;
@@ -30,6 +31,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.obtenerTodos());
     }
 
+    //Actualizar usuario
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioDTO> actualizar (@PathVariable Long id, @Valid @RequestBody RegistroUsuarioDTO dto){
 
@@ -38,4 +40,13 @@ public class UsuarioController {
         return ResponseEntity.ok(actualizado);
     
     }
+
+    //cambiar contraseña
+    @PutMapping("/{id}/password")
+    public ResponseEntity<String> cambiarPassword(@PathVariable Long id, @Valid @RequestBody CambiarPasswordDTO dto) {
+        usuarioService.cambiarPassword(id, dto);
+        
+        return ResponseEntity.ok("Contraseña actualizada correctamente");
+}
+
 }
