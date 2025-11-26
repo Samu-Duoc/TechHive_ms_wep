@@ -2,12 +2,15 @@ package com.ms_auth_usuarios.service;
 
 import org.springframework.stereotype.Service;
 
+import com.ms_auth_usuarios.dto.CambiarPasswordDTO;
 import com.ms_auth_usuarios.dto.LoginRequestDTO;
+import com.ms_auth_usuarios.dto.RecuperarClaveDTO;
 import com.ms_auth_usuarios.dto.RegistroUsuarioDTO;
 import com.ms_auth_usuarios.dto.UsuarioDTO;
 import com.ms_auth_usuarios.model.Rol;
 import com.ms_auth_usuarios.model.Usuario;
 import com.ms_auth_usuarios.repository.UsuarioRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
@@ -19,6 +22,7 @@ import java.time.LocalDateTime;
 public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     
     // Metodo para registrar un nuevo usuario
@@ -37,7 +41,7 @@ public class UsuarioService {
                 .apellido(dto.getApellido())
                 .rut(dto.getRut())
                 .email(dto.getEmail())
-                .password(dto.getPassword()) // En un entorno real, la contraseña debe ser hasheada
+                .password(passwordEncoder.encode(dto.getPassword())) // Contraseña encriptada
                 .direccion(dto.getDireccion())
                 .telefono(dto.getTelefono())
                 .rol(Rol.CLIENTE)
@@ -56,7 +60,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("email o contraseña incorrectos"));
         
-        if (!usuario.getPassword().equals(dto.getPassword())) {
+        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
             throw new IllegalArgumentException("email o contraseña incorrectos");
         }
 
@@ -70,7 +74,7 @@ public class UsuarioService {
             .nombre(usuario.getNombre())
             .apellido(usuario.getApellido())
             .email(usuario.getEmail())
-            .rut(formatRut(usuario.getRut()))   // 👈 AQUÍ EL FORMATEO
+            .rut(formatRut(usuario.getRut()))
             .telefono(usuario.getTelefono())
             .direccion(usuario.getDireccion())
             .rol(usuario.getRol().name())
@@ -97,7 +101,7 @@ public class UsuarioService {
         usuario.setApellido(dto.getApellido());
         usuario.setRut(dto.getRut());
         usuario.setEmail(dto.getEmail());
-        usuario.setPassword(dto.getPassword());
+        usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         usuario.setTelefono(dto.getTelefono());
         usuario.setDireccion(dto.getDireccion());
 
@@ -136,6 +140,28 @@ public class UsuarioService {
     // lo volvemos a dar vuelta y agregamos guion
     String formattedBody = withDots.reverse().toString();
     return formattedBody + "-" + dv;
+    }
+
+    //Actualizar contraseña por email
+    public void actualizarPasswordPorEmail(RecuperarClaveDTO dto) {
+    Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ese email"));
+
+        usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+        usuarioRepository.save(usuario);
+    }
+
+    //Cambiar contraeña
+    public void cambiarPassword(Long id, CambiarPasswordDTO dto) {
+    Usuario usuario = usuarioRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
+
+            if (!passwordEncoder.matches(dto.getPasswordActual(), usuario.getPassword())) {
+                throw new IllegalArgumentException("La contraseña actual no es correcta");
+                }
+
+                usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
+                usuarioRepository.save(usuario);
     }
 
 }
