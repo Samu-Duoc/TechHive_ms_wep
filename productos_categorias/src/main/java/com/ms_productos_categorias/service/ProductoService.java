@@ -14,6 +14,8 @@ import com.ms_productos_categorias.model.Producto;
 import java.util.List;
 import java.util.Base64; // Importar Base64 esto sirve para convertir la imagen a String
 import java.io.IOException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -36,7 +38,7 @@ public class ProductoService {
     //Obtener producto por ID
     public ProductoDTO obtenerProductoPorId(Long id) {
         Producto p = productoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
         return toDTO(p);
     }
 
@@ -46,13 +48,23 @@ public class ProductoService {
         if (dto.getImagenBase64()!= null) {
             imagenBytes = Base64.getDecoder().decode(dto.getImagenBase64());
         }
+        // validar sku
+        if (dto.getSku() == null || dto.getSku().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "SKU es requerido");
+        }
+
+        if (productoRepository.existsBySku(dto.getSku())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "SKU ya existe");
+        }
+
         Categoria categoria = categoriaRepository.findByNombre(dto.getCategoria())
-                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoría no encontrada"));
         
         Producto producto = Producto.builder()
                 .nombre(dto.getNombre())
                 .descripcion(dto.getDescripcion())
                 .precio(dto.getPrecio())
+            .sku(dto.getSku())
                 .categoria(categoria)
                 .stock(dto.getStock())
                 .estado(dto.getEstado())
@@ -104,10 +116,10 @@ public class ProductoService {
     //Actualizar producto por ID
     public ProductoDTO actualizar(Long id, ProductoDTO dto) {
         Producto producto = productoRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Producto no encontrado"));
 
         Categoria categoria = categoriaRepository.findByNombre(dto.getCategoria())
-                .orElseThrow(() -> new IllegalArgumentException("Categoría no encontrada"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Categoría no encontrada"));
 
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
