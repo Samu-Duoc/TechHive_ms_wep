@@ -41,13 +41,14 @@ public class UsuarioService {
                 .apellido(dto.getApellido())
                 .rut(dto.getRut())
                 .email(dto.getEmail())
-                .password(passwordEncoder.encode(dto.getPassword())) // Contraseña encriptada
+                .password(passwordEncoder.encode(dto.getPassword()))
                 .direccion(dto.getDireccion())
                 .telefono(dto.getTelefono())
-                .rol(Rol.CLIENTE)
+                .rol(Rol.CLIENTE) //registro web siempre CLIENTE
                 .estado("Activo")
                 .fechaRegistro(LocalDateTime.now())
                 .build();
+
         
         Usuario guardado = usuarioRepository.save(usuario);
 
