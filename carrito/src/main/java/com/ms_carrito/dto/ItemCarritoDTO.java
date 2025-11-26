@@ -1,5 +1,7 @@
 package com.ms_carrito.dto;
 
+import java.math.BigDecimal;
+
 import lombok.*;
 
 @Data
@@ -8,8 +10,8 @@ import lombok.*;
 @Builder
 public class ItemCarritoDTO {
 
-    private Long id;  // id del detalle
+    private Long id;
     private String productoId;
     private Integer cantidad;
-    private Double subtotal;
+    private BigDecimal subtotal;
 }
