@@ -11,8 +11,9 @@ import java.util.Map;
 public class ProductoClient {
 
     private final WebClient webClient;
-
-    public ProductoClient(@Value("${productos-service.url}") String productosServiceUrl) {
+    
+    //Evita duplicar propiedades y resuelve el placeholder que provocaba que Spring no pudiera crear el bean.
+    public ProductoClient(@Value("${productos-categorias-service.url}") String productosServiceUrl) {
         this.webClient = WebClient.builder()
                 .baseUrl(productosServiceUrl)
                 .build();
