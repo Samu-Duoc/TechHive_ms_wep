@@ -59,14 +59,14 @@ public class UsuarioService {
     public UsuarioDTO login(LoginRequestDTO dto) {
 
         Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("email o contraseña incorrectos"));
-        
-        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
-            throw new IllegalArgumentException("email o contraseña incorrectos");
-        }
+            .orElseThrow(() -> new IllegalArgumentException("Email o contraseña incorrectos"));
 
-        return toDTO(usuario);
+        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
+            throw new IllegalArgumentException("Email o contraseña incorrectos");
+        }
+        return toDTO(usuario); // incluye rol
     }
+
 
    // Metodo para convertir Usuario a UsuarioDTO
     private UsuarioDTO toDTO(Usuario usuario) {

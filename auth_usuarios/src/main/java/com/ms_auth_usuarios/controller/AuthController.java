@@ -42,6 +42,5 @@ public class AuthController {
     usuarioService.actualizarPasswordPorEmail(dto);
     return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
-    
     //para esa verificacion del recuperar es solo logica, no es ncesario ingreagr un correo real
 }
