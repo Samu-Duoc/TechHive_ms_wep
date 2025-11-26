@@ -33,7 +33,7 @@ public class Usuario {
     private String email;
 
     @Column(nullable = false)
-    private String password;
+    private String password; // encriptada con BCrypt
 
     @Column(nullable = false, length = 15)
     private String telefono;
@@ -43,11 +43,12 @@ public class Usuario {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private Rol rol; // CLIENTE / ADMIN
+    private Rol rol;  // ADMIN / VENDEDOR / CLIENTE
 
     @Column(nullable = false, length = 20)
     private String estado; // "Activo", "Inactivo"
 
     private LocalDateTime fechaRegistro;
 }
+
 
