@@ -13,6 +13,8 @@ import com.ms_productos_categorias.model.Producto;
 
 import java.util.List;
 import java.util.Base64; // Importar Base64 esto sirve para convertir la imagen a String
+import java.io.IOException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -121,6 +123,29 @@ public class ProductoService {
         Producto actualizado = productoRepository.save(producto);
 
         return toDTO(actualizado);
+    }
+
+    // Actualizar imagen desde un MultipartFile
+    public void actualizarImagen(Long id, MultipartFile archivo) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        try {
+            producto.setImagen(archivo.getBytes());
+            productoRepository.save(producto);
+        } catch (IOException e) {
+            throw new RuntimeException("Error al leer el archivo", e);
+        }
+    }
+
+    // Obtener imagen en Base64 (opcional para el DTO o endpoints)
+    public String obtenerImagenBase64(Long id) {
+        Producto producto = productoRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
+
+        if (producto.getImagen() == null) return null;
+
+        return Base64.getEncoder().encodeToString(producto.getImagen());
     }
 
     //Eliminar producto por ID
