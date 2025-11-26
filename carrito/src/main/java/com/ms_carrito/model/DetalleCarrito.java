@@ -2,6 +2,7 @@ package com.ms_carrito.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "detalle_carrito")
@@ -29,5 +30,6 @@ public class DetalleCarrito {
     private Integer cantidad;
 
     @Column(nullable = false)
-    private Double subtotal; // precio * cantidad
+    private BigDecimal subtotal; // precio * cantidad
+
 }

@@ -1,7 +1,7 @@
 package com.ms_carrito.dto;
 
 import lombok.*;
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +15,7 @@ public class CarritoDTO {
     private Long id;
     private Long usuarioId;
     private LocalDateTime fechaCreacion;
-    private Double total;
+    private BigDecimal total;
     private List<ItemCarritoDTO> items;
 
 }

@@ -1,5 +1,6 @@
 package com.ms_carrito.dto;
 
+import java.math.BigDecimal;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -13,6 +14,6 @@ public class ActualizarItemDTO {
 
     @NotNull
     @Min(0)
-    private Double subtotal; // mandado desde el front
+    private BigDecimal subtotal; 
 
 }
