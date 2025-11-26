@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 @RestController
 @RequestMapping("/usuarios")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 
 public class UsuarioController {
 
