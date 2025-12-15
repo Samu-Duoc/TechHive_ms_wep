@@ -13,7 +13,6 @@ import com.ms_pedidos_pagos.repository.PedidoRepository;
 
 @RestController
 @RequestMapping("/pedidos")
-@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class PedidoPagoController {
 
