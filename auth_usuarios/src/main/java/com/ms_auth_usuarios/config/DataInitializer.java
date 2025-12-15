@@ -29,11 +29,33 @@ public class DataInitializer implements CommandLineRunner {
                     .password(passwordEncoder.encode("Admin1234+"))
                     .telefono("999999999")
                     .direccion("Sede Mi casa ")
+                    .preguntaSeguridad("¿Cuál es tu auto favorito o de tus sueños?")
+                    .respuestaSeguridad(passwordEncoder.encode("moto"))
                     .rol(Rol.ADMIN)
                     .estado("Activo")
                     .fechaRegistro(LocalDateTime.now())
                     .build();
             usuarioRepository.save(admin);
         }
+
+        if (!usuarioRepository.existsByEmail("vendedor@techhive.cl")) {
+            Usuario vendedor = Usuario.builder()
+                    .nombre("Vendedor")
+                    .apellido("Tienda")
+                    .rut("22222222-2")
+                    .email("vendedor@techhive.cl")
+                    .password(passwordEncoder.encode("Vendedor123*"))
+                    .telefono("888888888")
+                    .direccion("Sucursal Local")
+                    .preguntaSeguridad("¿Cuál es tu auto favorito o de tus sueños?")
+                    .respuestaSeguridad(passwordEncoder.encode("moto"))
+                    .rol(Rol.VENDEDOR)
+                    .estado("Activo")
+                    .fechaRegistro(LocalDateTime.now())
+                    .build();
+            usuarioRepository.save(vendedor);
+        }
     }
+
 }
+

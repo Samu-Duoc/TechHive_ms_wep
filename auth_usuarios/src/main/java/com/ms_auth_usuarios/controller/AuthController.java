@@ -1,9 +1,10 @@
 package com.ms_auth_usuarios.controller;
 
+import com.ms_auth_usuarios.dto.AuthResponseDTO;
 import com.ms_auth_usuarios.dto.LoginRequestDTO;
-import com.ms_auth_usuarios.dto.RecuperarClaveDTO;
 import com.ms_auth_usuarios.dto.RecuperarClaveSeguraDTO;
 import com.ms_auth_usuarios.dto.RegistroUsuarioDTO;
+import com.ms_auth_usuarios.dto.SecurityQuestionDTO;
 import com.ms_auth_usuarios.dto.UsuarioDTO;
 import com.ms_auth_usuarios.service.UsuarioService;
 
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/auth")
+@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 
 public class AuthController {
@@ -32,23 +34,23 @@ public class AuthController {
 
     //Inicio de Sesión
     @PostMapping("/login")
-    public ResponseEntity<UsuarioDTO> login (@Valid @RequestBody LoginRequestDTO dto) {
-        UsuarioDTO usuario = usuarioService.login(dto);
-        return ResponseEntity.ok(usuario);
+    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO dto) {
+        return ResponseEntity.ok(usuarioService.loginConToken(dto));
     }
+
 
     //Recuperar Clave
-    @PostMapping("/recuperar-clave")
-    public ResponseEntity<String> recuperarClave(@Valid @RequestBody RecuperarClaveDTO dto) {
-    usuarioService.actualizarPasswordPorEmail(dto);
-    return ResponseEntity.ok("Contraseña actualizada correctamente");
-    }
-    //para esa verificacion del recuperar es solo logica, no es ncesario ingreagr un correo real
-
     @PostMapping("/recuperar-clave-segura")
     public ResponseEntity<String> recuperarClaveSegura(@Valid @RequestBody RecuperarClaveSeguraDTO dto) {
         usuarioService.actualizarPasswordPorEmailConRespuesta(dto);
         return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
+
+        @GetMapping("/pregunta-seguridad")
+    public ResponseEntity<SecurityQuestionDTO> pregunta(@RequestParam String email) {
+        String pregunta = usuarioService.obtenerPreguntaSeguridad(email);
+        return ResponseEntity.ok(new SecurityQuestionDTO(pregunta));
+    }
+
 
 }

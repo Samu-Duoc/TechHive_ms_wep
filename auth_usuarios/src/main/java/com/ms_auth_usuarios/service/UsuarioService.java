@@ -1,8 +1,8 @@
 package com.ms_auth_usuarios.service;
 
+import com.ms_auth_usuarios.dto.AuthResponseDTO;
 import com.ms_auth_usuarios.dto.CambiarPasswordDTO;
 import com.ms_auth_usuarios.dto.LoginRequestDTO;
-import com.ms_auth_usuarios.dto.RecuperarClaveDTO;
 import com.ms_auth_usuarios.dto.RecuperarClaveSeguraDTO;
 import com.ms_auth_usuarios.dto.RegistroUsuarioDTO;
 import com.ms_auth_usuarios.dto.SetSecurityQADTO;
@@ -16,9 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import com.ms_auth_usuarios.security.JwtService;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +28,7 @@ public class UsuarioService {
 
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     private static final String DEFAULT_SECURITY_QUESTION = "¿Cuál es el nombre de tu primera mascota?";
 
@@ -89,6 +92,27 @@ public class UsuarioService {
         }
 
         return toDTO(usuario);
+    }
+
+    // Login con Token JWT
+    public AuthResponseDTO loginConToken(LoginRequestDTO dto) {
+        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos"));
+
+        if (!passwordEncoder.matches(dto.getPassword(), usuario.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Email o contraseña incorrectos");
+        }
+
+        // token con claims mínimos
+        String token = jwtService.generateToken(
+                usuario.getEmail(),
+                Map.of("rol", usuario.getRol().name(), "userId", usuario.getId())
+        );
+
+        return AuthResponseDTO.builder()
+                .token(token)
+                .usuario(toDTO(usuario))
+                .build();
     }
 
     // Obtener por ID
@@ -155,15 +179,6 @@ public class UsuarioService {
         usuarioRepository.save(usuario);
     }
 
-    // Recuperar contraseña por email (sin seguridad) — si ya no lo usas, puedes borrarlo
-    public void actualizarPasswordPorEmail(RecuperarClaveDTO dto) {
-        Usuario usuario = usuarioRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado con ese email"));
-
-        usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
-        usuarioRepository.save(usuario);
-    }
-
     // Configurar pregunta/respuesta (requiere password actual)
     public void configurarPreguntaSeguridad(Long id, SetSecurityQADTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
@@ -201,6 +216,15 @@ public class UsuarioService {
         usuario.setPassword(passwordEncoder.encode(dto.getNuevaPassword()));
         usuarioRepository.save(usuario);
     }
+
+    public String obtenerPreguntaSeguridad(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        String p = usuario.getPreguntaSeguridad();
+        return (p == null || p.isBlank()) ? DEFAULT_SECURITY_QUESTION : p;
+    }
+
 
     // Mapper a DTO
     private UsuarioDTO toDTO(Usuario usuario) {
