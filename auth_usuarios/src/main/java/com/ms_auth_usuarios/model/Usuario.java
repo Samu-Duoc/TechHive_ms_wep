@@ -35,7 +35,7 @@ public class Usuario {
     @Column(nullable = false)
     private String password; // encriptada con BCrypt
 
-    @Column(nullable = false, length = 15)
+    @Column(nullable = false, length = 9)
     private String telefono;
 
     @Column(nullable = false, length = 200)
@@ -49,6 +49,13 @@ public class Usuario {
     private String estado; // "Activo", "Inactivo"
 
     private LocalDateTime fechaRegistro;
+
+    @Column(name="pregunta_seguridad", length = 120)
+    private String preguntaSeguridad;
+
+    @Column(name="respuesta_seguridad", nullable = true)
+    private String respuestaSeguridad; // guardarla HASHEADA (BCrypt)
+
 }
 
 

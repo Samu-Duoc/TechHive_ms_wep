@@ -2,6 +2,8 @@ package com.ms_pedidos_pagos.controller;
 
 import com.ms_pedidos_pagos.dto.ComprobantePagoDTO;
 import com.ms_pedidos_pagos.dto.CrearPedidoPagoDTO;
+import com.ms_pedidos_pagos.dto.ActualizarEstadoPedidoDTO;
+import com.ms_pedidos_pagos.dto.PedidoDetalleDTO;
 import com.ms_pedidos_pagos.model.Pedido;
 import com.ms_pedidos_pagos.service.PedidoPagoService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +14,6 @@ import com.ms_pedidos_pagos.repository.PedidoRepository;
 @RestController
 @RequestMapping("/pedidos")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 public class PedidoPagoController {
 
     private final PedidoPagoService pedidoPagoService;
@@ -31,7 +32,27 @@ public class PedidoPagoController {
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public List<Pedido> listarPorUsuario(@PathVariable String usuarioId) {
-        return pedidoRepository.findByUsuarioId(usuarioId);
+    public List<Pedido> listarPorUsuario(@PathVariable Long usuarioId) {
+    return pedidoRepository.findByUsuarioId(usuarioId);
     }
+
+    // GET busca el pedido por ID 
+    @GetMapping("/{pedidoId}")
+    public Pedido buscarPorId(@PathVariable String pedidoId) {
+        return pedidoRepository.findById(pedidoId)
+                .orElseThrow(() -> new RuntimeException("Pedido con ID " + pedidoId + " no encontrado"));
+    }
+
+    // PATCH actualizar estado (Admin)
+    @PatchMapping("/{pedidoId}/estado")
+    public Pedido actualizarEstado(@PathVariable String pedidoId, @RequestBody ActualizarEstadoPedidoDTO dto) {
+        return pedidoPagoService.actualizarEstado(pedidoId, dto.getEstado());
+    }
+
+    // GET detalle del pedido con items + metodoPago
+    @GetMapping("/{pedidoId}/detalle")
+    public PedidoDetalleDTO detalle(@PathVariable String pedidoId) {
+        return pedidoPagoService.getDetalle(pedidoId);
+    }
+
 }
