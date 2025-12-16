@@ -17,11 +17,19 @@ public class UsuarioClient {
                 .build();
     }
 
-    public Map<String, Object> getUsuarioById(Long id) {
-        return this.webClient.get()
-                .uri("/{id}", id)
-                .retrieve()
+    public Map<String, Object> getUsuarioById(Long id, String authHeader) {
+        WebClient.RequestHeadersSpec<?> req = this.webClient.get()
+                .uri("/{id}", id);
+        if (authHeader != null && !authHeader.isBlank()) {
+            req = req.header("Authorization", authHeader);
+        }
+        return req.retrieve()
                 .bodyToMono(Map.class)
                 .block();
+    }
+
+    // Backward-compatible overload (no auth header)
+    public Map<String, Object> getUsuarioById(Long id) {
+        return getUsuarioById(id, null);
     }
 }

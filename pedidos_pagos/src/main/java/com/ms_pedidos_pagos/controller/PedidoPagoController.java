@@ -8,6 +8,7 @@ import com.ms_pedidos_pagos.model.Pedido;
 import com.ms_pedidos_pagos.service.PedidoPagoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
 import java.util.List;
 import com.ms_pedidos_pagos.repository.PedidoRepository;
 
@@ -22,8 +23,11 @@ public class PedidoPagoController {
 
     // POST /pedidos/pagar
     @PostMapping("/pagar")
-    public ComprobantePagoDTO pagar(@RequestBody CrearPedidoPagoDTO dto) {
-        return pedidoPagoService.crearPedidoYPago(dto);
+    public ComprobantePagoDTO pagar(
+            @RequestBody CrearPedidoPagoDTO dto,
+            @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorization
+    ) {
+        return pedidoPagoService.crearPedidoYPago(dto, authorization);
     }
 
     // GET listado general (Admin / Vendedor)

@@ -33,6 +33,9 @@ public class SecurityConfig {
                 // públicos
                 .requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
+                // permitir leer un usuario por id sin token (para ms internos)
+                .requestMatchers(HttpMethod.GET, "/usuarios/*").permitAll()
+
                 // solo admin/vendedor pueden listar todos los usuarios
                 .requestMatchers(HttpMethod.GET, "/usuarios").hasAnyRole("ADMIN", "VENDEDOR")
 

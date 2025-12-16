@@ -37,7 +37,7 @@ public class PedidoPagoService {
     private final ProductoClient productoClient;
 
     @Transactional
-    public ComprobantePagoDTO crearPedidoYPago(CrearPedidoPagoDTO dto) {
+    public ComprobantePagoDTO crearPedidoYPago(CrearPedidoPagoDTO dto, String authHeader) {
         // 0) Validaciones básicas
         if (dto.getUsuarioId() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuarioId es obligatorio");
@@ -48,7 +48,7 @@ public class PedidoPagoService {
 
         // 1) Validar usuario en ms_auth_usuarios
         Long usuarioId = dto.getUsuarioId();
-        Map<String, Object> usuario = usuarioClient.getUsuarioById(usuarioId);
+        Map<String, Object> usuario = usuarioClient.getUsuarioById(usuarioId, authHeader);
         if (usuario == null || usuario.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     "Usuario no encontrado. No se puede crear el pedido.");
