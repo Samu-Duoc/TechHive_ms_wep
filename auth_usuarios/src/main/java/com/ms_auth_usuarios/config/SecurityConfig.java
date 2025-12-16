@@ -12,6 +12,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.*;
+import org.springframework.http.HttpMethod;
 
 import java.util.List;
 
@@ -32,8 +33,8 @@ public class SecurityConfig {
                 // públicos
                 .requestMatchers("/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
-                // ejemplo: solo admin/vendedor
-                .requestMatchers("/usuarios").hasAnyRole("ADMIN", "VENDEDOR")
+                // solo admin/vendedor pueden listar todos los usuarios
+                .requestMatchers(HttpMethod.GET, "/usuarios").hasAnyRole("ADMIN", "VENDEDOR")
 
                 // todo lo demás requiere token
                 .anyRequest().authenticated()

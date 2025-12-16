@@ -16,7 +16,7 @@ public class RegistroUsuarioDTO {
     private String apellido;
 
     @NotBlank
-    @Pattern(regexp = "^\\d{7,8}-?[0-9K]$", message = "El RUT debe tener formato válido (ej: 12345678-K o 12345678K)")
+    @Pattern(regexp = "^[\\d.-]+[0-9Kk]$", message = "El RUT debe tener formato válido (ej: 12.345.678-K, 12345678-K o 12345678K)")
     private String rut;
 
     @Email

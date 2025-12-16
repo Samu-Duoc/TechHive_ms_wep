@@ -154,13 +154,22 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
-        String rutLimpio = limpiarRut(dto.getRut());
-
-        usuario.setNombre(dto.getNombre());
-        usuario.setApellido(dto.getApellido());
-        usuario.setRut(rutLimpio);
-        usuario.setTelefono(dto.getTelefono());
-        usuario.setDireccion(dto.getDireccion());
+        if (dto.getNombre() != null && !dto.getNombre().isBlank()) {
+            usuario.setNombre(dto.getNombre());
+        }
+        if (dto.getApellido() != null && !dto.getApellido().isBlank()) {
+            usuario.setApellido(dto.getApellido());
+        }
+        if (dto.getRut() != null && !dto.getRut().isBlank()) {
+            String rutLimpio = limpiarRut(dto.getRut());
+            usuario.setRut(rutLimpio);
+        }
+        if (dto.getTelefono() != null && !dto.getTelefono().isBlank()) {
+            usuario.setTelefono(dto.getTelefono());
+        }
+        if (dto.getDireccion() != null && !dto.getDireccion().isBlank()) {
+            usuario.setDireccion(dto.getDireccion());
+        }
 
         Usuario actualizado = usuarioRepository.save(usuario);
         return toDTO(actualizado);
